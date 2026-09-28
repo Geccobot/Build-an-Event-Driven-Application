@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form Submission</title>
+</head>
+<body>
+  <h1>Submit Your Form</h1>
+  <form id="form">
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name" required><br><br>
+    <button type="submit">Submit</button>
+  </form>
+
+  <h2>Status Updates:</h2>
+  <ul id="updates"></ul>
+
+  <script>
+    const form = document.getElementById('form');
+    const updates = document.getElementById('updates');
+
+    // Connect to WebSocket
+    const ws = new WebSocket('ws://localhost:8080');
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      const li = document.createElement('li');
+      li.textContent = data.message;
+      updates.appendChild(li);
+    };
+
+    // Submit form
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('name').value;
+
+      const response = await fetch('http://localhost:3000/submit-form', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: 'user123', formData: { name } })
+      });
+
+      if (response.ok) {
+        alert('Form submitted successfully');
+      } else {
+        alert('Error submitting form');
+      }
+    });
+  </script>
+</body>
+</html>
